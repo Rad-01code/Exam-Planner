@@ -1,5 +1,5 @@
 from typing import List, Dict
-from datetime import datetime, timedelta, time
+from datetime import datetime, timedelta, time, timezone
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_groq import ChatGroq
 import streamlit as st
@@ -45,7 +45,8 @@ def get_smart_break(slot_start: datetime):
 # ---------------- STUDY PLAN GENERATOR ----------------
 def generate_study_plan(exams: List[Dict]):
 
-    now = datetime.now().replace(second=0, microsecond=0)
+    IST = timezone(timedelta(hours=5, minutes=30))
+    now = datetime.now(IST).replace(second=0, microsecond=0)
     today = now.date()
     # if very late night, shift planning to next day
     if now.time() >= time(23, 0):
@@ -103,7 +104,8 @@ def generate_study_plan(exams: List[Dict]):
             continue
 
         # -------- START TIME --------
-        slot_start = datetime.combine(current_day, start_time_today if current_day == today else time(7, 0))
+        slot_start = datetime( current_day.year,current_day.month,current_day.day,start_time_today.hour if current_day == today else 7,start_time_today.minute if current_day == today else 0)
+
         end_time = datetime.combine(current_day, time(23, 0))
 
         # -------- TOPICS POOL --------
@@ -180,3 +182,4 @@ def generate_study_plan(exams: List[Dict]):
     )
 
     return plan_text
+
